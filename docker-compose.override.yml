@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      args:
+        user: eduard # run `whoami` to get your username
+        uid: 1000 # run `izd -u` to get your UID
+
+  backend-nginx:
+    ports:
+      - 8080:80
+
+  backend-db:
+    ports:
+      - 3306:3306
