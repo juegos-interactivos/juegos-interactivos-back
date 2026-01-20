@@ -20,3 +20,11 @@ docker-compose up -d --build
 # Run docker normally afterwards
 docker-compose up -d 
 ```
+
+sudo apt-get install composer
+sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
+sudo apt install php8.4-cli
+sudo update-alternatives --config php
+sudo apt-get install php-xml
+sudo apt install php8.4-intl
+sudo apt install php8.4-mbstring
