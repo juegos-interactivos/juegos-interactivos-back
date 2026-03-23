@@ -1,0 +1,41 @@
+body {
+    background: green;
+}
+
+.tablero {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center; /* Centra las cartas */
+    padding: 20px;
+    margin: 0 auto;
+    /* El max-width se lo daremos por JS según la dificultad */
+}
+
+.tarjeta {
+    width: 150px;
+    height: 200px;
+    perspective: 1000px;
+    position: relative;
+    cursor: pointer; 
+    flex: 0 0 auto; /* Evita que se deformen los rectángulos */
+}
+
+/* --- Tu diseño original se mantiene intacto --- */
+.frontal, .trasera {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    transition: transform 1s ease;
+    border: 6px solid #333;
+}
+
+.frontal { background-color: #e74c3c; }
+.trasera { background-color: white; transform: rotateY(180deg); }
+.tarjeta.clicked .frontal { transform: rotateY(180deg); }
+.tarjeta.clicked .trasera { transform: rotateY(360deg) scale(1.10); }
