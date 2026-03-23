@@ -1,32 +1,36 @@
+const tablero = document.getElementById('tablero');
+let cantidadTarjetas = 0;
+let cartasGiradas = [];
+let bloqueado = false;
+let parejasEncontradas = 0;
+
+
+//Bloquear herramientas para hacer trampa
 // Bloquear click derecho
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 // Bloquear F12 y otros atajos
 document.onkeydown = function(e) {
-    if (e.keyCode == 123 || e.keyCode == 118) { // F12 o F7
-        return false;
-    }
-    if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) { // Ctrl+Shift+I
+    if (e.keyCode == 123) { // F12
         return false;
     }
     if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift+C
         return false;
     }
-    if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) { // Ctrl+Shift+C
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 'K'.charCodeAt(0)) { // Ctrl+Shift+K
         return false;
     }
-
-
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 'Z'.charCodeAt(0)) { // Ctrl+Shift+Z
+        return false;
+    }
+    if (e.ctrlKey && e.shiftKey && e.keyCode == 'E'.charCodeAt(0)) { // Ctrl+Shift+E
+        return false;
+    }
 };
 
-const tablero = document.getElementById('tablero');
-let cantidadTarjetas = 0;
-let cartasGiradas = [];
-let bloqueado = false;
-
+// Ajustamos cantidad y el ancho del tablero para forzar las líneas
 let dificultad = prompt('Selecciona: 1(6 cartas), 2(12 cartas), 3(24 cartas)');
 
-// Ajustamos cantidad y el ancho del tablero para forzar las líneas
 while (dificultad !== '1' && dificultad !== '2' && dificultad !== '3') {
     dificultad = prompt('Opción no válida. Selecciona: 1(6 cartas), 2(12 cartas), 3(24 cartas)');
 }
@@ -41,7 +45,7 @@ if (dificultad === '1') {
     tablero.style.maxWidth = "1000px"; // Caben 6 por línea (6x4)
 }
 
-// Lógica de creación de cartas
+// Lógica de creación de cartas y asignar aleatoriamente
 let numeros = [];
 for (let i = 1; i <= cantidadTarjetas / 2; i++) {
     numeros.push(i, i);
@@ -62,6 +66,7 @@ numeros.forEach(numero => {
     tablero.appendChild(tarjeta);
 });
 
+// Lógica para girar tarjetas y verificar que coincidan
 function girarTarjeta() {
     if (bloqueado || this.classList.contains('clicked') || this === cartasGiradas[0]) return;
 
