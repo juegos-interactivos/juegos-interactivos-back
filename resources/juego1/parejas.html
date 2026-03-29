@@ -7,7 +7,21 @@
     <title>Juego de parejas</title>
 </head>
 <body>
-    <div id="tablero" class="tablero"></div> <script src="parejas.js"></script>
+    <div id="menu">
+        <button onclick="ajustarDificultad('1')">Fácil</button>
+        <button onclick="ajustarDificultad('2')">Normal</button>
+        <button onclick="ajustarDificultad('3')">Difícil</button>
+        <button id="btn-reiniciar" onclick="reiniciarJuego()">Reiniciar</button>
+    </div>
+
+    <div id="info">
+        <span>Tiempo: <b id="tiempo">0</b>s</span>
+        <span>Intentos: <b id="intentos">0</b></span>
+        <span>Puntos: <b id="puntos">0</b></span>
+    </div>
+
+    <div id="tablero" class="tablero"></div>
+
     <script src="parejas.js"></script>
 </body>
 </html>
