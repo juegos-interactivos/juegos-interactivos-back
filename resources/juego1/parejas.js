@@ -7,9 +7,9 @@ let cantidadTarjetas = 0;
 let cartasGiradas = [];
 let bloqueado = false;
 let parejasEncontradas = 0;
-let tiempo = 0; 
+let tiempo = 0;
 let intentos = 0;
-let puntos = 0; // Esta variable ahora sí bajará de 0 internamente
+let puntos = 0;
 let intervaloTiempo = null;
 let primerclick = false;
 let dificultadActual = '2';
@@ -21,11 +21,18 @@ document.onkeydown = function (e) {
     if (e.ctrlKey && e.shiftKey && [67, 75, 90, 69].includes(e.keyCode)) return false;
 };
 
-// Función para ajustar la dificultad desde el menú
+// Función para ajustar la dificultad desde el menú y cambiar colores de los botones
 function ajustarDificultad(dif) {
     dificultadActual = dif;
+    const botones = document.querySelectorAll('#menu button');
+    botones.forEach(btn => btn.classList.remove('activo'));
+    const botonActivo = document.querySelector(`#menu button[onclick="ajustarDificultad('${dif}')"]`);
+    if (botonActivo) {
+        botonActivo.classList.add('activo');
+    }
     reiniciarJuego();
 }
+
 function iniciarJuego() {
     tablero.innerHTML = '';
     cartasGiradas = [];
@@ -33,7 +40,7 @@ function iniciarJuego() {
     parejasEncontradas = 0;
     tiempo = 0;
     intentos = 0;
-    puntos = 0; 
+    puntos = 0;
     primerclick = false;
     clearInterval(intervaloTiempo);
 
@@ -49,7 +56,7 @@ function iniciarJuego() {
         tablero.style.maxWidth = "680px";
     } else if (dificultadActual === '3') {
         cantidadTarjetas = 24;
-        tablero.style.maxWidth = "1000px";
+        tablero.style.maxWidth = "1450px";
     }
 
     // Generar números para las tarjetas
@@ -65,7 +72,7 @@ function iniciarJuego() {
         tarjeta.dataset.valor = numero;
         tarjeta.innerHTML = `
             <div class="frontal"></div>
-            <div class="trasera"><img src="imagenes/imagen${numero}.jpg" alt="Pareja ${numero}"></div>
+            <div class="trasera"><img src="imagenes/imagen${numero}.png" alt="Pareja ${numero}"></div>
         `;
         tarjeta.addEventListener('click', girarTarjeta);
         tablero.appendChild(tarjeta);
@@ -99,9 +106,9 @@ function girarTarjeta() {
     // Si ya hay dos tarjetas giradas, comparar
     if (cartasGiradas.length === 2) {
         bloqueado = true;
-        intentos++; 
+        intentos++;
         intentosDisplay.textContent = intentos;
-        
+
         let [t1, t2] = cartasGiradas;
         let multiplicador = parseInt(dificultadActual);
 
@@ -139,4 +146,4 @@ function girarTarjeta() {
 function reiniciarJuego() {
     iniciarJuego();
 }
-iniciarJuego();
+ajustarDificultad('2');

@@ -55,7 +55,7 @@ button:hover {
     perspective: 1000px;
     position: relative;
     cursor: pointer; 
-    flex: 0 0 auto; /* Evita que se deformen los rectángulos */
+    flex: 0 0 auto;
 }
 
 /* --- Tu diseño original se mantiene intacto --- */
@@ -80,4 +80,10 @@ button:hover {
 .frontal { background-color: #e74c3c; }
 .trasera { background-color: white; transform: rotateY(180deg); }
 .tarjeta.clicked .frontal { transform: rotateY(180deg); }
-.tarjeta.clicked .trasera { transform: rotateY(360deg) scale(1.10); }
+.tarjeta.clicked .trasera { transform: rotateY(360deg); }
+
+button.activo {
+    background-color: #2980b9 !important; /* Azul */
+    border: 2px solid white;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
