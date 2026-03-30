@@ -15,11 +15,25 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Crear un usuario de prueba
+        User::create([
+            'nickname' => 'admin',
+            'mail' => 'admin@example.com',
+            'password' => bcrypt('password123'),
+            'image' => 'https://via.placeholder.com/200x200.png?text=Admin',
+            'level' => 100,
+            'general_xp' => 50000,
+            'isAdmin' => true,
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Crear usuarios adicionales
+        User::factory(10)->create();
+
+        // Ejecutar los otros seeders
+        $this->call([
+            GameSeeder::class,
+            GameUserSeeder::class,
         ]);
     }
 }
+
