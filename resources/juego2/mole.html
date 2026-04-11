@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="mole.css" type="text/css" rel="stylesheet">
+    <title>Atrapa al Topo</title>
+</head>
+<body>
+    <div id="menu">
+        <button onclick="ajustarDificultad('1')">Fácil</button>
+        <button onclick="ajustarDificultad('2')">Normal</button>
+        <button onclick="ajustarDificultad('3')">Difícil</button>
+        <button id="btn-reiniciar" onclick="reiniciarJuego()">Reiniciar</button>
+    </div>
+
+    <div id="info">
+        <span>Tiempo: <b id="tiempo">0</b>s</span>
+        <span>Golpeados: <b id="golpeados">0</b></span>
+        <span>Escapados: <b id="escapados">0</b>/3</span>
+        <span>Puntos: <b id="puntos">0</b></span>
+    </div>
+
+    <div id="tablero" class="tablero"></div>
+
+    <script src="mole.js"></script>
+</body>
+</html>

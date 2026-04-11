@@ -33,6 +33,7 @@ function ajustarDificultad(dif) {
     reiniciarJuego();
 }
 
+//Limpieza de anterior juego e inicialización de nuevo
 function iniciarJuego() {
     tablero.innerHTML = '';
     cartasGiradas = [];
