@@ -23,10 +23,5 @@ docker-compose up -d
 
 
 ## Comandos para crear datos de prueba en BBDD
-
-# comando si no tienes las tablas/migraciones 
-docker exec backend-app php artisan db:seed
-
-# comando si ya tienes las tablas/migraciones
 docker exec backend-app php artisan migrate:fresh --seed
 ```
