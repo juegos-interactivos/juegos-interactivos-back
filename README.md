@@ -19,4 +19,9 @@ docker-compose up -d --build
 
 # Run docker normally afterwards
 docker-compose up -d 
+
+
+
+## Comandos para crear datos de prueba en BBDD
+docker exec backend-app php artisan migrate:fresh --seed
 ```

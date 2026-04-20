@@ -17,11 +17,11 @@ return new class extends Migration
             $table->unsignedBigInteger('game_id');
             $table->bigInteger('best_score')->default(0);
             $table->time('best_time')->default('00:00:00');
-            $table->boolean('isFavorite')->default(0);
+            $table->boolean('isFavorite')->default(false);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('games_id')->references('id')->on('games')->onDelete('cascade');
+            $table->foreign('game_id')->references('id')->on('games')->onDelete('cascade');
         });
     }
 

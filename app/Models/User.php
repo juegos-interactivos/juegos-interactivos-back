@@ -35,4 +35,11 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function games()
+    {
+        return $this->belongsToMany(Game::class, 'game_user')
+            ->withPivot('best_score', 'best_time', 'isFavorite')
+            ->withTimestamps();
+    }
+
 }
