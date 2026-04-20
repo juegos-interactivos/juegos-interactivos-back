@@ -56,6 +56,17 @@ button.activo {
     overflow: hidden;
     border: 6px solid #3e2723;
     box-shadow: inset 0 10px 15px rgba(0,0,0,0.5);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.agujero.acierto {
+    border-color: #2ecc71 !important;
+    box-shadow: inset 0 10px 20px rgba(46, 204, 113, 0.6) !important;
+}
+
+.agujero.fallo {
+    border-color: #e74c3c !important;
+    box-shadow: inset 0 10px 20px rgba(231, 76, 60, 0.6) !important;
 }
 
 .topo {
@@ -109,6 +120,58 @@ button.activo {
     border-radius: 50%;
 }
 
-.agujero.activo .topo {
-    bottom: 0; 
+/* --- EL GATO REDISEÑADO --- */
+.gato {
+    width: 80%; height: 90%;
+    background: #546e7a; /* Gris azulado */
+    border-radius: 50% 50% 0 0;
+    position: absolute; bottom: -100%; left: 10%;
+    transition: bottom 0.1s ease; cursor: pointer;
 }
+
+/* Orejas */
+.gato::before, .gato::after {
+    content: ''; position: absolute; top: -15px;
+    width: 0; height: 0;
+    border-left: 18px solid transparent; border-right: 18px solid transparent;
+    border-bottom: 30px solid #546e7a;
+}
+.gato::before { left: 2px; transform: rotate(-10deg); }
+.gato::after { right: 2px; transform: rotate(10deg); }
+
+/* Ojos */
+.gato-ojos {
+    position: absolute; top: 25px; left: 15px;
+    width: 16px; height: 12px; background: #cddc39; /* Ojos amarillentos */
+    border-radius: 50%;
+    box-shadow: 35px 0 0 #cddc39;
+}
+.gato-ojos::after {
+    content: ''; position: absolute; top: 2px; left: 6px;
+    width: 4px; height: 8px; background: black; border-radius: 50%;
+    box-shadow: 35px 0 0 black;
+}
+
+/* Hocico y Nariz */
+.gato-cara {
+    position: absolute; top: 45px; left: 50%;
+    transform: translateX(-50%);
+    width: 10px; height: 8px; background: #ff8a80; /* Nariz rosa */
+    border-radius: 50%;
+}
+
+/* Bigotes (usando box-shadow para crear varios hilos) */
+.gato-cara::before {
+    content: ''; position: absolute; top: 2px; right: 15px;
+    width: 30px; height: 1px; background: rgba(255,255,255,0.5);
+    box-shadow: 0 8px 0 rgba(255,255,255,0.5), 0 -8px 0 rgba(255,255,255,0.5);
+    transform: rotate(5deg);
+}
+.gato-cara::after {
+    content: ''; position: absolute; top: 2px; left: 15px;
+    width: 30px; height: 1px; background: rgba(255,255,255,0.5);
+    box-shadow: 0 8px 0 rgba(255,255,255,0.5), 0 -8px 0 rgba(255,255,255,0.5);
+    transform: rotate(-5deg);
+}
+.agujero.activo-topo .topo { bottom: 0; }
+.agujero.activo-gato .gato { bottom: 0; }
