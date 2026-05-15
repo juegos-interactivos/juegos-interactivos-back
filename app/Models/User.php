@@ -25,6 +25,7 @@ class User extends Authenticatable
         'level',
         'general_xp',
         'isAdmin',
+        'token',
     ];
 
     /**
@@ -34,13 +35,13 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
+        'token',
     ];
 
     /**
      * Relación many-to-many con juegos
      */
-    public function games()
+    public function game()
     {
         return $this->belongsToMany(Game::class, 'game_user')
             ->withPivot('best_score', 'best_time', 'isFavorite')

@@ -24,7 +24,7 @@ Route::get('/games/{game}', [GameController::class, 'show']);
     // Rutas de juegos protegidas
     Route::post('/games/{game}', [GameController::class, 'update']);
     Route::delete('/games/{game}', [GameController::class, 'destroy']);
-    Route::post('/games/{game}/disable', [GameController::class, 'disable']);
+    Route::post('/games/{game}/toggle', [GameController::class, 'toggle']);
 
     // Rutas Usuarios
     Route::get('/users', [UserController::class, 'index']);

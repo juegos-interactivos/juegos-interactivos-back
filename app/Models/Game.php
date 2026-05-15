@@ -24,7 +24,7 @@ class Game extends Model
     /**
      * Relación many-to-many con usuarios
      */
-    public function users()
+    public function user()
     {
         return $this->belongsToMany(User::class, 'game_user')
             ->withPivot('best_score', 'best_time', 'isFavorite')
