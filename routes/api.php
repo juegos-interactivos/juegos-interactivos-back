@@ -33,3 +33,4 @@ Route::get('/games/{game}', [GameController::class, 'show']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
 // });
 
+

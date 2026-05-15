@@ -38,13 +38,11 @@ class User extends Authenticatable
         'token',
     ];
 
-    /**
-     * Relación many-to-many con juegos
-     */
-    public function game()
+    public function games()
     {
         return $this->belongsToMany(Game::class, 'game_user')
             ->withPivot('best_score', 'best_time', 'isFavorite')
             ->withTimestamps();
     }
+
 }
