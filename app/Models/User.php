@@ -47,4 +47,5 @@ class User extends Authenticatable
             ->withPivot('best_score', 'best_time', 'isFavorite')
             ->withTimestamps();
     }
+
 }

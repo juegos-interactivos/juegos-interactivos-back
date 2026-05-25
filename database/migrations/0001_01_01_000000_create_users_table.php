@@ -18,9 +18,9 @@ return new class extends Migration
             $table->string('mail')->unique();
             $table->string('image');
             $table->bigInteger('level')->default(0);
-            $table->bigIncrements('general_xp')->default(0);
-            $table->boolean('isAdmin')->default(0);
-            $table->token();
+            $table->bigInteger('general_xp')->default(0);
+            $table->boolean('isAdmin')->default(false);
+            $table->string('token')->nullable();
             $table->timestamps();
         });
     }
