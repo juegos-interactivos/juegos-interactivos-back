@@ -17,8 +17,8 @@ class AuthController extends Controller
         $validated = $request->validate([
             'nickname' => 'required|string|unique:users|max:255',
             'mail' => 'required|email|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'image' => 'nullable|string',
+            'password' => 'required|string|min:8',
+            'image' => 'required|string',
         ]);
 
         try {
@@ -33,6 +33,8 @@ class AuthController extends Controller
             ]);
 
             $token = $user->createToken('auth_token')->plainTextToken;
+            $user->token = $token;
+            $user->save();
 
             return response()->json([
                 'success' => true,
@@ -68,6 +70,8 @@ class AuthController extends Controller
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        $user->token = $token;
+        $user->save();
 
         return response()->json([
             'success' => true,
@@ -83,6 +87,12 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
+
+        $user = $request->user();
+        if ($user) {
+            $user->token = null;
+            $user->save();
+        }
 
         return response()->json([
             'success' => true,
