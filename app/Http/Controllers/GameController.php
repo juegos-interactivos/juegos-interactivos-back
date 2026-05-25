@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Game;
 use Illuminate\Http\Request;
+use Throwable;
+use Illuminate\Validation\ValidationException;
 
 class GameController extends Controller
 {
@@ -39,4 +41,5 @@ class GameController extends Controller
     {
         //
     }
+
 }
