@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('is_disabled')->default(false)->after('isAdmin');
-        });
+        if (!Schema::hasColumn('users', 'is_disabled')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->boolean('is_disabled')->default(false)->after('isAdmin');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('is_disabled');
-        });
+        if (Schema::hasColumn('users', 'is_disabled')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropColumn('is_disabled');
+            });
+        }
     }
 };

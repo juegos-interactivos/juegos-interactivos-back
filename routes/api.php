@@ -17,12 +17,12 @@ Route::get('/games/{game}', [GameController::class, 'show']);
 
 
 // Rutas protegidas
-// Route::middleware('auth:sanctum')->group(function () {updateLevelXp
+Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
-    Route::get('/auth/me', [AuthController::class, 'me']);
 
     // Rutas de juegos protegidas
     Route::get('/games/{game}/score_time', [GameController::class, 'getScoreTime']);
+    Route::get('/games/{game}/gameScores', [GameController::class, 'gameScores']);
     Route::post('/games/{game}', [GameController::class, 'update']);
     Route::post('/games/{game}/level_up', [GameController::class, 'updateLevelXp']);
     Route::delete('/games/{game}', [GameController::class, 'destroy']);
@@ -32,7 +32,9 @@ Route::get('/games/{game}', [GameController::class, 'show']);
     // Rutas Usuarios
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/users/{user}', [UserController::class, 'show']);
+    Route::get('/users/{user}/Games', [UserController::class, 'userGames']);
     Route::post('/users/{user}', [UserController::class, 'update']);
+    Route::post('/users/{user}/toggleBan', [UserController::class, 'toggleBan']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
-// });
+});
 

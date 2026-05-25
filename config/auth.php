@@ -42,8 +42,10 @@ return [
         ],
 
         'sanctum' => [
-            'driver' => 'sanctum',
+            'driver' => 'token',
             'provider' => 'users',
+            'storage_key' => 'token',
+            'hash' => false,
         ],
     ],
 

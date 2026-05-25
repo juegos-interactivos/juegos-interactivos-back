@@ -134,7 +134,6 @@ class GameController extends Controller
         try {
             $validated = $request->validate([
                 'score' => 'required|integer|min:0',
-                'time' => 'required|string',
             ]);
 
             $user = $request->user() ?: auth('sanctum')->user();
@@ -145,21 +144,10 @@ class GameController extends Controller
                 ], 401);
             }
 
-            $parts = explode(':', $validated['time']);
-            $parts = array_map('intval', $parts);
-            $seconds = 0;
-            if (count($parts) === 3) {
-                $seconds = $parts[0] * 3600 + $parts[1] * 60 + $parts[2];
-            } elseif (count($parts) === 2) {
-                $seconds = $parts[0] * 60 + $parts[1];
-            } else {
-                $seconds = $parts[0];
-            }
-
-            $xpToAdd = (int) round($validated['score'] * 10/$seconds);
+            $xpToAdd = (int) $validated['score'] * 0.1;
 
             $user->general_xp = (int) ($user->general_xp ?? 0) + $xpToAdd;
-            $user->level = intdiv($user->general_xp, 100);
+            $user->level = intdiv($user->general_xp, 200);
             $user->save();
 
             return response()->json([
@@ -242,6 +230,36 @@ class GameController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'error' => 'No se ha podido eliminar el juego',
+            ], 500);
+        }
+    }
+
+    /**
+     * Return all pivot rows for a given game (users + pivot limited fields).
+     */
+    public function gameScores(Request $request, Game $game)
+    {
+        try {
+            $users = $game->user()->get();
+
+            $rows = $users->map(function ($u) {
+                return [
+                    'nickname' => $u->nickname,
+                    'level' => $u->level,
+                    'best_score' => $u->pivot?->best_score ?? 0,
+                    'best_time' => $u->pivot?->best_time ?? null,
+                ];
+            })->sortByDesc('best_score')->values();
+
+            $gameData = $game->toArray();
+
+            return response()->json([
+                'game' => $gameData,
+                'data' => $rows,
+            ], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'No se han podido obtener las pivots del juego',
             ], 500);
         }
     }

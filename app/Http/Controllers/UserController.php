@@ -18,7 +18,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if(!isset($userAuth) || $userAuth->isAdmin !== 1) Throw new Exception();
+            if($userAuth->isAdmin !== 1) Throw new Exception();
 
             $Users = User::all();
 
@@ -40,7 +40,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if(!isset($userAuth) || ($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id)) Throw new Exception();
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception();
 
             return response()->json([
                 'data' => $User,
@@ -53,6 +53,46 @@ class UserController extends Controller
     }
 
     /**
+     * Devuelve la tabla entre usuarios y juegos.
+     */
+    public function UserGames(Request $request, User $User)
+    {
+        try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception();
+
+            $games = $User->game()->get();
+
+            $result = $games->map(function ($g) {
+                $gameData = $g->toArray();
+                // remove nested pivot from game data to avoid duplication
+                if (isset($gameData['pivot'])) {
+                    unset($gameData['pivot']);
+                }
+
+                $pivot = $g->pivot ? [
+                    'best_score' => $g->pivot->best_score ?? null,
+                    'best_time' => $g->pivot->best_time ?? null,
+                ] : ['best_score' => null, 'best_time' => null];
+
+                return [
+                    'game' => $gameData,
+                    'pivot' => $pivot,
+                ];
+            })->values();
+
+            return response()->json([
+                'data' => $result,
+            ], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'No se han podido obtener las pivots del usuario',
+            ], 500);
+        }
+    }
+
+    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, User $User)
@@ -60,7 +100,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if(!isset($userAuth) || ($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id)) Throw new Exception('No tienes permisos para realizar estas acciones');
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception('No tienes permisos para realizar estas acciones');
 
             $validated = $request->validate([
                 'nickname' => 'sometimes|string',
@@ -116,6 +156,27 @@ class UserController extends Controller
         }
     }
 
+    public function toggleBan(Request $request, User $user)
+    {
+        try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+
+
+            $user->is_disabled = !$user->is_disabled;
+            $user->save();
+
+            return response()->json([
+                'data' => $user,
+            ], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'No se ha podido actualizar el estado del usuario',
+            ], 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -124,7 +185,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if(!isset($userAuth) || ($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id)) Throw new Exception();
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception();
         
             $User->delete();
 

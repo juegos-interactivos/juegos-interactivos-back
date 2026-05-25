@@ -18,7 +18,6 @@ class AuthController extends Controller
             'nickname' => 'required|string|unique:users|max:255',
             'mail' => 'required|email|unique:users',
             'password' => 'required|string|min:8',
-            'image' => 'required|string',
         ]);
 
         try {
@@ -26,7 +25,7 @@ class AuthController extends Controller
                 'nickname' => $validated['nickname'],
                 'mail' => $validated['mail'],
                 'password' => Hash::make($validated['password']),
-                'image' => $validated['image'] ?? null,
+                'image' => null,
                 'level' => 0,
                 'general_xp' => 0,
                 'isAdmin' => false,
@@ -62,6 +61,8 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('mail', $request->mail)->first();
+        
+        if($user->is_disabled === 1) return false;
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -86,8 +87,6 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-
         $user = $request->user();
         if ($user) {
             $user->token = null;
