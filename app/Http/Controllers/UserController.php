@@ -40,7 +40,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception();
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             return response()->json([
                 'data' => $User,
@@ -60,13 +60,12 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception();
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             $games = $User->game()->get();
 
             $result = $games->map(function ($g) {
                 $gameData = $g->toArray();
-                // remove nested pivot from game data to avoid duplication
                 if (isset($gameData['pivot'])) {
                     unset($gameData['pivot']);
                 }
@@ -100,7 +99,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception('No tienes permisos para realizar estas acciones');
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             $validated = $request->validate([
                 'nickname' => 'sometimes|string',
@@ -119,7 +118,6 @@ class UserController extends Controller
             if (isset($validated['mail']) && $User->mail === $validated['mail']) {
                 unset($validated['mail']);
             }
-
 
             if (isset($validated['nickname'])) {
                 $userExists = User::where('nickname', $validated['nickname'])->exists();
@@ -151,7 +149,7 @@ class UserController extends Controller
             ], 422);
         } catch (Throwable $e) {
             return response()->json([
-                'error' => $e ?? 'No se ha podido actualizar el usuario',
+                'error' => 'No se ha podido actualizar el usuario',
             ], 500);
         }
     }

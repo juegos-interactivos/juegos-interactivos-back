@@ -6,6 +6,7 @@ use App\Models\Game;
 use Illuminate\Http\Request;
 use Throwable;
 use Illuminate\Validation\ValidationException;
+use Exception;
 
 class GameController extends Controller
 {
@@ -16,12 +17,11 @@ class GameController extends Controller
     {
         try {
             $user = $request->user() ?: auth('sanctum')->user();
+            $games = Game::where('isActive', true)->get();
 
-            if ($user) {
+            if ($user && $user->is_disabled != 1) {
                 if($user->isAdmin){
                     $games = Game::all();
-                }else{
-                    $games = Game::where('isActive', true)->get();
                 }
 
                 $isFavorite = $user->game->mapWithKeys(function ($value, $key) {
@@ -31,8 +31,6 @@ class GameController extends Controller
                 foreach ($games as $game) {
                     $game['isFavourite'] = (bool) ($isFavorite[$game->id] ?? false);
                 }
-            } else {
-                $games = Game::where('isActive', true)->get();
             }
 
             return response()->json([
@@ -53,7 +51,7 @@ class GameController extends Controller
         try {
             $user = $request->user() ?: auth('sanctum')->user();
 
-            if ($user) {
+            if ($user && $user->is_disabled != 1) {
                 $extraData = $user->game->where('pivot.game_id', $game->id)->mapWithKeys(function ($value, $key) {
                     return ['best_score' => $value->pivot?->best_score , 'best_time' => $value->pivot?->best_time];
                 });
@@ -76,12 +74,6 @@ class GameController extends Controller
     {
         try {
             $user = $request->user() ?: auth('sanctum')->user();
-
-            if (! $user) {
-                return response()->json([
-                    'error' => 'No autorizado',
-                ], 401);
-            }
 
             $related = $user->game()->where('game_id', $game->id)->first();
 
@@ -107,6 +99,10 @@ class GameController extends Controller
     public function update(Request $request, Game $game)
     {
         try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+
             $validated = $request->validate([
                 'name' => 'sometimes|string',
                 'image' => 'sometimes|string',
@@ -138,23 +134,81 @@ class GameController extends Controller
 
             $user = $request->user() ?: auth('sanctum')->user();
 
-            if (! $user) {
-                return response()->json([
-                    'error' => 'No autorizado',
-                ], 401);
-            }
+            if($user->is_disabled != 0) Throw new Exception();
 
-            $xpToAdd = (int) $validated['score'] * 0.1;
+            $xpToAdd = $validated['score'] * 0.1;
 
-            $user->general_xp = (int) ($user->general_xp ?? 0) + $xpToAdd;
+            $user->general_xp = ($user->general_xp ?? 0) + $xpToAdd;
             $user->level = intdiv($user->general_xp, 200);
             $user->save();
+
+            $level = $user->level;
+            $general_xp = $user->general_xp;
+
+            $xpToLevelUp = $general_xp - $level * 200;
 
             return response()->json([
                 'data' => [
                     'general_xp' => $user->general_xp,
                     'level' => $user->level,
                     'xp_gained' => $xpToAdd,
+                    'xpToLevelUp' => $xpToLevelUp,
+                ],
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'error' => 'No cumple la validación',
+            ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'No se ha podido actualizar XP y nivel',
+            ], 500);
+        }
+    }
+
+    public function saveBestStats(Request $request, Game $game)
+    {
+        try {
+            $validated = $request->validate([
+                'score' => 'required|integer|min:0',
+                'time' => 'required|date_format:H:i:s',
+
+            ]);
+
+            $user = $request->user() ?: auth('sanctum')->user();
+            
+            if($user->is_disabled != 0) Throw new Exception();
+
+            $related = $user->game()->where('game_id', $game->id)->first();
+            $saved = false;
+
+            $newScore = $validated['score'];
+            $newTime = $validated['time'];
+
+            if (! $related) {
+                $user->game()->attach($game->id, ['best_score' => $newScore, 'best_time' => $newTime]);
+                $saved = true;
+            } else {
+                $currentScore = $related->pivot?->best_score ?? 0;
+                $currentTime = $related->pivot?->best_time ?? '00:00:00';
+
+                if ($newScore > $currentScore) {
+                    $user->game()->updateExistingPivot($game->id, ['best_score' => $newScore, 'best_time' => $newTime]);
+                    $saved = true;
+                    
+                } elseif ($newScore == $currentScore) {
+                    $newTime = $newTime;
+                    $currentTime = $currentTime;
+                    if ($newTime <= $currentTime) {
+                        $user->game()->updateExistingPivot($game->id, ['best_score' => $newScore, 'best_time' => $newTime]);
+                        $saved = true;
+                    }
+                }
+            }
+
+            return response()->json([
+                'data' => [
+                    'best_saved' => $saved,
                 ],
             ], 200);
         } catch (ValidationException $e) {
@@ -171,6 +225,10 @@ class GameController extends Controller
     public function toggle(Request $request, Game $game)
     {
         try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+
             $game->isActive = !$game->isActive;
             $game->save();
 
@@ -189,11 +247,7 @@ class GameController extends Controller
         try {
             $user = $request->user() ?: auth('sanctum')->user();
 
-            if (! $user) {
-                return response()->json([
-                    'error' => 'No autorizado',
-                ], 401);
-            }
+            if($user->is_disabled != 0) Throw new Exception();
 
             $related = $user->game()->where('game_id', $game->id)->first();
 
@@ -219,9 +273,13 @@ class GameController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Game $game)
+    public function destroy(Game $game, Request $request)
     {
         try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+
             $game->delete();
 
             return response()->json([

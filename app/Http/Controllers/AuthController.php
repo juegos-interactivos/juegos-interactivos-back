@@ -14,13 +14,12 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validated = $request->validate([
-            'nickname' => 'required|string|unique:users|max:255',
-            'mail' => 'required|email|unique:users',
-            'password' => 'required|string|min:8',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'nickname' => 'required|string|unique:users|max:255',
+                'mail' => 'required|email|unique:users',
+                'password' => 'required|string|min:8',
+            ]);
             $user = User::create([
                 'nickname' => $validated['nickname'],
                 'mail' => $validated['mail'],
@@ -41,6 +40,10 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token,
             ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'errors' => 'Datos incorrectos', 
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -96,17 +99,6 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Sesión cerrada correctamente',
-        ], 200);
-    }
-
-    /**
-     * Obtener usuario autenticado
-     */
-    public function me(Request $request)
-    {
-        return response()->json([
-            'success' => true,
-            'user' => $request->user(),
         ], 200);
     }
 }

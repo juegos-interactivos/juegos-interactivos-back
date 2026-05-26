@@ -20,7 +20,7 @@ Route::get('/games/{game}', [GameController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
 
-    // Rutas de juegos protegidas
+    // Rutas de juegos protegidas 
     Route::get('/games/{game}/score_time', [GameController::class, 'getScoreTime']);
     Route::get('/games/{game}/gameScores', [GameController::class, 'gameScores']);
     Route::post('/games/{game}', [GameController::class, 'update']);
@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/games/{game}', [GameController::class, 'destroy']);
     Route::post('/games/{game}/toggle', [GameController::class, 'toggle']);
     Route::post('/games/{game}/favourite', [GameController::class, 'updateFavourite']);
+    Route::post('/games/{game}/saveBestStats', [GameController::class, 'saveBestStats']);
 
     // Rutas Usuarios
     Route::get('/users', [UserController::class, 'index']);
