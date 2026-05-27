@@ -40,6 +40,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'sanctum' => [
+            'driver' => 'token',
+            'provider' => 'users',
+            'storage_key' => 'token',
+            'hash' => false,
+        ],
     ],
 
     /*
