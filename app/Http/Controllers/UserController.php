@@ -174,6 +174,33 @@ class UserController extends Controller
             ], 500);
         }
     }
+    public function UserScores(Request $request, User $User)
+    {
+        try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+
+            $games = $User->game()->get();
+
+            $result = $games->map(function ($g) {
+                $pivot = $g->pivot ? [
+                    'best_score' => $g->pivot->best_score ?? null,
+                    'best_time' => $g->pivot->best_time ?? null,
+                ] : [];
+
+                return $pivot;
+            })->values();
+
+            return response()->json([
+                'data' => $result,
+            ], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'No se han podido obtener las puntuaciones del usuario',
+            ], 500);
+        }
+    }
 
     /**
      * Remove the specified resource from storage.
