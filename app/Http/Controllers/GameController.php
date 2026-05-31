@@ -303,11 +303,13 @@ class GameController extends Controller
             $rows = $users->map(function ($u) {
                 return [
                     'nickname' => $u->nickname,
-                    'level' => $u->level,
                     'best_score' => $u->pivot?->best_score ?? 0,
                     'best_time' => $u->pivot?->best_time ?? null,
                 ];
-            })->sortByDesc('best_score')->values();
+            })
+                ->filter(fn ($row) => $row['best_time'] && $row['best_time'] !== '00:00:00')
+                ->sortBy('best_time')
+                ->values();
 
             $gameData = $game->toArray();
 

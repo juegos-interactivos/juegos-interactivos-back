@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Throwable;
 use Illuminate\Validation\ValidationException;
 
@@ -138,6 +141,10 @@ class UserController extends Controller
                 ]);
             }
 
+            if (isset($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
+            }
+
             $User->update($validated);
 
             return response()->json([
@@ -150,6 +157,64 @@ class UserController extends Controller
         } catch (Throwable $e) {
             return response()->json([
                 'error' => 'No se ha podido actualizar el usuario',
+            ], 500);
+        }
+    }
+
+    public function uploadProfileImage(Request $request, User $User)
+    {
+        try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+
+            $validated = $request->validate([
+                'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+            ]);
+
+            if ($User->image && Str::startsWith($User->image, 'profile-images/')) {
+                Storage::disk('public')->delete($User->image);
+            }
+
+            $path = $validated['image']->store('profile-images', 'public');
+
+            $User->image = $path;
+            $User->save();
+
+            return response()->json([
+                'data' => $User,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'No se ha podido subir la imagen de perfil',
+            ], 500);
+        }
+    }
+
+    public function deleteProfileImage(Request $request, User $User)
+    {
+        try {
+            $userAuth = $request->user() ?: auth('sanctum')->user();
+
+            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+
+            if ($User->image && Str::startsWith($User->image, 'profile-images/')) {
+                Storage::disk('public')->delete($User->image);
+            }
+
+            $User->image = null;
+            $User->save();
+
+            return response()->json([
+                'data' => $User,
+            ], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'No se ha podido borrar la imagen de perfil',
             ], 500);
         }
     }
