@@ -35,8 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{user}', [UserController::class, 'show']);
     Route::get('/users/{user}/Games', [UserController::class, 'userGames']);
     Route::post('/users/{user}', [UserController::class, 'update']);
+    Route::post('/users/{user}/profile-image', [UserController::class, 'uploadProfileImage']);
+    Route::delete('/users/{user}/profile-image', [UserController::class, 'deleteProfileImage']);
     Route::post('/users/{user}/toggleBan', [UserController::class, 'toggleBan']);
     Route::get('/users/{user}/UserScores', [UserController::class, 'UserScores']);
     Route::delete('/users/{user}', [UserController::class, 'destroy']);
 });
-
