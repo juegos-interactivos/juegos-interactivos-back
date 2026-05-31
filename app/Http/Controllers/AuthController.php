@@ -64,13 +64,18 @@ class AuthController extends Controller
         ]);
 
         $user = User::where('mail', $request->mail)->first();
-        
-        if($user->is_disabled === 1) return false;
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'mail' => 'Las credenciales proporcionadas no son correctas.',
             ]);
+        }
+
+        if ($user->is_disabled === 1) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario deshabilitado',
+            ], 403);
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Throwable;
 use Illuminate\Validation\ValidationException;
 
@@ -136,6 +137,10 @@ class UserController extends Controller
                 throw ValidationException::withMessages([
                     'email' => ['El mail ya existe']
                 ]);
+            }
+
+            if (isset($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
             }
 
             $User->update($validated);
