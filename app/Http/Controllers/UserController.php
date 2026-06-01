@@ -21,7 +21,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1) Throw new Exception();
+            if(! $userAuth->isAdmin) Throw new Exception();
 
             $Users = User::all();
 
@@ -43,7 +43,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+            if(! $userAuth->isAdmin && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             return response()->json([
                 'data' => $User,
@@ -63,7 +63,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+            if(! $userAuth->isAdmin && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             $games = $User->game()->get();
 
@@ -76,7 +76,8 @@ class UserController extends Controller
                 $pivot = $g->pivot ? [
                     'best_score' => $g->pivot->best_score ?? null,
                     'best_time' => $g->pivot->best_time ?? null,
-                ] : ['best_score' => null, 'best_time' => null];
+                    'updated_at' => $g->pivot->updated_at ?? null,
+                ] : ['best_score' => null, 'best_time' => null, 'updated_at' => null];
 
                 return [
                     'game' => $gameData,
@@ -102,7 +103,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+            if(! $userAuth->isAdmin && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             $validated = $request->validate([
                 'nickname' => 'sometimes|string',
@@ -166,7 +167,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+            if(! $userAuth->isAdmin && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             $validated = $request->validate([
                 'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
@@ -200,7 +201,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+            if(! $userAuth->isAdmin && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             if ($User->image && Str::startsWith($User->image, 'profile-images/')) {
                 Storage::disk('public')->delete($User->image);
@@ -224,7 +225,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+            if(! $userAuth->isAdmin) Throw new Exception('No tienes permisos para realizar estas acciones');
 
 
             $user->is_disabled = !$user->is_disabled;
@@ -244,14 +245,17 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
+            if(! $userAuth->isAdmin && $userAuth->id !== $User->id || $User->is_disabled != 0) Throw new Exception();
 
             $games = $User->game()->get();
 
             $result = $games->map(function ($g) {
                 $pivot = $g->pivot ? [
+                    'game_id' => $g->id,
+                    'game_name' => $g->name,
                     'best_score' => $g->pivot->best_score ?? null,
                     'best_time' => $g->pivot->best_time ?? null,
+                    'updated_at' => $g->pivot->updated_at ?? null,
                 ] : [];
 
                 return $pivot;
@@ -275,7 +279,7 @@ class UserController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1 && $userAuth->id !== $User->id) Throw new Exception();
+            if(! $userAuth->isAdmin && $userAuth->id !== $User->id) Throw new Exception();
         
             $User->delete();
 

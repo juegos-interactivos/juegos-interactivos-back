@@ -38,6 +38,13 @@ class User extends Authenticatable
         'token',
     ];
 
+    protected $casts = [
+        'isAdmin' => 'boolean',
+        'is_disabled' => 'boolean',
+        'level' => 'integer',
+        'general_xp' => 'integer',
+    ];
+
     /**
      * Relación many-to-many con juegos
      */
