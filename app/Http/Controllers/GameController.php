@@ -136,23 +136,23 @@ class GameController extends Controller
 
             if($user->is_disabled != 0) Throw new Exception();
 
-            $xpToAdd = $validated['score'] * 0.1;
+            $xpToAdd = $validated['score'];
 
             $user->general_xp = ($user->general_xp ?? 0) + $xpToAdd;
-            $user->level = intdiv($user->general_xp, 200);
+
+            while ($user->general_xp >= 10000) {
+                $user->general_xp -= 10000;
+                $user->level = ($user->level ?? 0) + 1;
+            }
+
             $user->save();
-
-            $level = $user->level;
-            $general_xp = $user->general_xp;
-
-            $xpToLevelUp = $general_xp - $level * 200;
 
             return response()->json([
                 'data' => [
                     'general_xp' => $user->general_xp,
                     'level' => $user->level,
                     'xp_gained' => $xpToAdd,
-                    'xpToLevelUp' => $xpToLevelUp,
+                    'xp_to_next_level' => 10000 - $user->general_xp,
                 ],
             ], 200);
         } catch (ValidationException $e) {
@@ -197,9 +197,7 @@ class GameController extends Controller
                     $saved = true;
                     
                 } elseif ($newScore == $currentScore) {
-                    $newTime = $newTime;
-                    $currentTime = $currentTime;
-                    if ($newTime <= $currentTime) {
+                    if ($currentTime === '00:00:00' || $newTime < $currentTime) {
                         $user->game()->updateExistingPivot($game->id, ['best_score' => $newScore, 'best_time' => $newTime]);
                         $saved = true;
                     }
