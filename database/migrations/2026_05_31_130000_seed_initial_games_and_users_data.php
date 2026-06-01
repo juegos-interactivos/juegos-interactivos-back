@@ -41,7 +41,7 @@ return new class extends Migration
             [
                 'id' => 5,
                 'name' => 'Buscaminas',
-                'image' => 'buscaminas.jpeg',
+                'image' => 'buscaminas.png',
                 'isActive' => true,
             ],
             [

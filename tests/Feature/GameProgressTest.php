@@ -121,4 +121,93 @@ class GameProgressTest extends TestCase
             'best_time' => '00:01:30',
         ]);
     }
+
+    public function test_game_scores_include_score_time_and_pivot_update_date_sorted_by_score(): void
+    {
+        $game = Game::factory()->create();
+        $firstUser = User::factory()->create(['is_disabled' => false]);
+        $secondUser = User::factory()->create(['is_disabled' => false]);
+        $admin = User::factory()->create(['isAdmin' => true, 'is_disabled' => false]);
+
+        $firstUser->game()->attach($game->id, [
+            'best_score' => 100,
+            'best_time' => '00:01:00',
+        ]);
+        $secondUser->game()->attach($game->id, [
+            'best_score' => 300,
+            'best_time' => '00:02:00',
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson("/api/games/{$game->id}/gameScores");
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.nickname', $secondUser->nickname)
+            ->assertJsonPath('data.0.best_score', 300)
+            ->assertJsonPath('data.0.best_time', '00:02:00')
+            ->assertJsonPath('data.1.nickname', $firstUser->nickname)
+            ->assertJsonStructure([
+                'data' => [
+                    ['nickname', 'best_score', 'best_time', 'updated_at'],
+                ],
+            ]);
+    }
+
+    public function test_user_games_include_game_data_score_time_and_pivot_update_date(): void
+    {
+        $user = User::factory()->create(['is_disabled' => false]);
+        $game = Game::factory()->create();
+        $admin = User::factory()->create(['isAdmin' => true, 'is_disabled' => false]);
+
+        $user->game()->attach($game->id, [
+            'best_score' => 450,
+            'best_time' => '00:01:45',
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson("/api/users/{$user->id}/Games");
+
+        $response->assertOk()
+            ->assertJsonPath('data.0.game.id', $game->id)
+            ->assertJsonPath('data.0.pivot.best_score', 450)
+            ->assertJsonPath('data.0.pivot.best_time', '00:01:45')
+            ->assertJsonStructure([
+                'data' => [
+                    [
+                        'game',
+                        'pivot' => ['best_score', 'best_time', 'updated_at'],
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_admin_can_update_user_with_partial_payload_without_image(): void
+    {
+        $admin = User::factory()->create(['isAdmin' => true, 'is_disabled' => false]);
+        $user = User::factory()->create([
+            'nickname' => 'OldName',
+            'mail' => 'old@example.com',
+            'image' => null,
+            'is_disabled' => false,
+        ]);
+
+        Sanctum::actingAs($admin);
+
+        $response = $this->postJson("/api/users/{$user->id}", [
+            'nickname' => 'NewName',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.nickname', 'NewName')
+            ->assertJsonPath('data.mail', 'old@example.com');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $user->id,
+            'nickname' => 'NewName',
+            'mail' => 'old@example.com',
+            'image' => null,
+        ]);
+    }
 }

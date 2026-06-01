@@ -101,7 +101,7 @@ class GameController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+            if(! $userAuth->isAdmin) Throw new Exception('No tienes permisos para realizar estas acciones');
 
             $validated = $request->validate([
                 'name' => 'sometimes|string',
@@ -225,7 +225,7 @@ class GameController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+            if(! $userAuth->isAdmin) Throw new Exception('No tienes permisos para realizar estas acciones');
 
             $game->isActive = !$game->isActive;
             $game->save();
@@ -276,7 +276,7 @@ class GameController extends Controller
         try {
             $userAuth = $request->user() ?: auth('sanctum')->user();
 
-            if($userAuth->isAdmin !== 1) Throw new Exception('No tienes permisos para realizar estas acciones');
+            if(! $userAuth->isAdmin) Throw new Exception('No tienes permisos para realizar estas acciones');
 
             $game->delete();
 
@@ -303,10 +303,14 @@ class GameController extends Controller
                     'nickname' => $u->nickname,
                     'best_score' => $u->pivot?->best_score ?? 0,
                     'best_time' => $u->pivot?->best_time ?? null,
+                    'updated_at' => $u->pivot?->updated_at ?? null,
                 ];
             })
                 ->filter(fn ($row) => $row['best_time'] && $row['best_time'] !== '00:00:00')
-                ->sortBy('best_time')
+                ->sortBy([
+                    ['best_score', 'desc'],
+                    ['best_time', 'asc'],
+                ])
                 ->values();
 
             $gameData = $game->toArray();
